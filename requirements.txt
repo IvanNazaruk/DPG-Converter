@@ -1,5 +1,9 @@
 DearPyGui-DragAndDrop
 dearpygui
-annotated-types
 numpy
 pillow
+# pillow-simd  # Does not support python > 3.10
+annotated-types
+tqdm
+darkdetect
+win32mica

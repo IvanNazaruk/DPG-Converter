@@ -2,7 +2,10 @@ import configparser
 import os
 from typing import Type
 
-from DearPyGui_Addons import dpg_callback
+import darkdetect
+
+import DearPyGui_Theme as dpg_theme
+from DearPyGui_Addons.dpg_callback import dpg_callback
 from .settings import *
 from .statics import application_path
 
@@ -10,17 +13,27 @@ file_name = 'settings.ini'
 file_path = os.path.join(application_path, 'settings', file_name)
 
 all_settings: dict[str, dict[str, Type[SettingValue]]] = {
-    # 'HEADER': {
-    #     'SETTING_NAME': {SettingValue},
-    # },
+    'Theme': {
+        'UseSystemColor': UseSystemColor,
+        'LightTheme': LightTheme,
+        'DarkTheme': DarkTheme,
+        'CustomTheme': CustomTheme,
+        'DarkTitleBar': DarkTitleBar,
+    },
+    'Table': {
+        'AddToEnd': AddToEnd,
+        'FullWindowScrollBar': FullWindowScrollBar,
+    },
+    'Other': {
+        'MaxTooltipImageWidth': MaxTooltipImageWidth,
+        'MaxTooltipImageHeight': MaxTooltipImageHeight,
+        'AutoScrollToNewElement': AutoScrollToNewElement,
+    }
 }
 
 
 @dpg_callback()
 def save_settings():
-    if len(all_settings) == 0:
-        return
-
     config = configparser.ConfigParser()
     for category_name in all_settings.keys():
         setting_category = {}
@@ -73,3 +86,16 @@ def load_settings():
                 continue
             except ValueError:
                 continue
+
+
+def start_up():
+    if UseSystemColor.get():
+        if darkdetect.isDark():
+            theme_name = DarkTheme.get()
+        else:
+            theme_name = LightTheme.get()
+    else:
+        theme_name = CustomTheme.get()
+
+    theme = dpg_theme.get_theme_by_name(theme_name)
+    dpg_theme.CurrentTheme.set(theme, fast=True)

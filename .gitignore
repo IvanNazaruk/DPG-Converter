@@ -1,5 +1,7 @@
+OUTPUT/
 settings/settings.ini
 
+*.pclprof
 .idea/
 
 # Byte-compiled / optimized / DLL files

@@ -4,6 +4,8 @@ from typing import Any, Callable
 
 import dearpygui.dearpygui as dpg
 
+from DearPyGui_Theme import THEME
+
 
 class SettingValue(ABC):
     value: Any
@@ -42,6 +44,46 @@ class SettingValue(ABC):
                 traceback.print_exc()
 
 
-# Settings
-class Example(SettingValue):
+# System theme setting
+class UseSystemColor(SettingValue):
+    value: bool = True
+
+
+class LightTheme(SettingValue):
+    value: str = THEME.LIGHT.name
+
+
+class DarkTheme(SettingValue):
+    value: str = THEME.COMFY.name
+
+
+# Custom theme settings
+class CustomTheme(SettingValue):
+    value: str = THEME.ENEMYMOUSE.name
+
+
+class DarkTitleBar(SettingValue):
+    value: bool = True
+
+
+# Table settings
+class AddToEnd(SettingValue):
+    value: bool = True
+
+
+class FullWindowScrollBar(SettingValue):
+    value: bool = False
+
+
+# Other settings
+class MaxTooltipImageWidth(SettingValue):
+    value: int = 1920
+
+
+class MaxTooltipImageHeight(SettingValue):
+    value: int = 1080
+
+
+# Other settings
+class AutoScrollToNewElement(SettingValue):
     value: bool = True
