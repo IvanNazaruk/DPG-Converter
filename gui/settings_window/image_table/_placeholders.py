@@ -5,18 +5,17 @@ from typing import TypeVar
 
 import dearpygui.dearpygui as dpg
 
-from DearPyGui_Addons.ctypes_utils import GetNowCursorType
-from DearPyGui_Addons.get_local_mouse_pos import get_local_mouse_pos
-from DearPyGui_Theme import subscribe_color_theme_change
-from ...draggable_list import DraggableList, DraggableListCell
+import tools
+from DPG_modules.Theme import subscribe_color_theme_change
+from ...image_table import ImageList, ImageListCell
 
 if TYPE_CHECKING:
     from .. import Window
 
-__all__ = ["SettingDraggableListCell", "SettingDraggableList", "SelectableSettingDraggableList"]
+__all__ = ["SettingImageListCell", "SettingImageList", "SelectableImageListSetting"]
 
 
-class SettingDraggableListCell(DraggableListCell):
+class SettingImageListCell(ImageListCell):
     _theme_border_color: int = None
 
     @classmethod
@@ -36,7 +35,7 @@ class SettingDraggableListCell(DraggableListCell):
         dpg.bind_item_theme(self.theme_group, self.get_theme())
 
 
-class SettingDraggableList(DraggableList):
+class SettingImageList(ImageList):
     DISABLE_DRAG = True
     window_padding = (10, 10)
 
@@ -57,47 +56,47 @@ class SettingDraggableList(DraggableList):
         return theme
 
 
-_SettingDraggableListType = TypeVar("_SettingDraggableListType", bound=SettingDraggableList)
+_SettingImageListType = TypeVar("_SettingImageListType", bound=SettingImageList)
 
 
-class SelectableSettingDraggableList(ABC):
+class SelectableImageListSetting(ABC):
     settings_window: 'Window'
-    windows: list[_SettingDraggableListType]
+    windows: list[_SettingImageListType]
     group: int | str
 
     def __init__(self, settings_window: 'Window'):
         self.settings_window = settings_window
-        self.windows: list[_SettingDraggableListType] = []
+        self.windows: list[_SettingImageListType] = []
         self.group = dpg.add_group()
 
     def click_callback(self):
         if len(self.windows) == 0:
             return
-        if GetNowCursorType() != 65539:  # 65539 - default cursor
+        if tools.GetNowCursorType() != 65539:  # 65539 - default cursor
             return
         if not dpg.is_item_shown(self.settings_window.window):
             return
         if not dpg.is_item_visible(self.group):
             return
         # If the click was above or to the left of the first (left) window
-        first_window_mouse_pos = get_local_mouse_pos(self.windows[0].window)
-        if first_window_mouse_pos[0] < 0 or first_window_mouse_pos[1] < 0:
+        firs_window_mouse_pos = tools.get_local_mouse_pos(self.windows[0].window)
+        if firs_window_mouse_pos[0] < 0 or firs_window_mouse_pos[1] < 0:
             return
 
         # If the click was further than the height of the window
         window_size = dpg.get_item_rect_size(self.windows[0].window)
-        first_window_mouse_pos[1] -= window_size[1]
-        if first_window_mouse_pos[1] > 0:
+        firs_window_mouse_pos[1] -= window_size[1]
+        if firs_window_mouse_pos[1] > 0:
             return
         # if the click is inside the window
-        first_window_mouse_pos[0] -= window_size[0]
-        if first_window_mouse_pos[0] < 0:
+        firs_window_mouse_pos[0] -= window_size[0]
+        if firs_window_mouse_pos[0] < 0:
             self.selected(0)
             return
 
         # Checking the remaining windows
         for i, setting_child_window in enumerate(self.windows[1::]):
-            window_mouse_local_pos = get_local_mouse_pos(setting_child_window.window)
+            window_mouse_local_pos = tools.get_local_mouse_pos(setting_child_window.window)
             if window_mouse_local_pos[0] < 0:
                 return
             window_size = dpg.get_item_rect_size(setting_child_window.window)

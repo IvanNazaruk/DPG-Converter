@@ -1,17 +1,16 @@
-from typing import Type
+from typing import Any
 
 import dearpygui.dearpygui as dpg
 from DearPyGui_DragAndDrop import DragAndDrop, DragAndDropDataObject
 
+from . import ImagesToPDF
+from . import ImageToImage
 from . import settings_window
-from .tabs import ImagesToPDF
-from .tabs import ImageToImage
-from .tabs.tab_template import AddFileTab
 
 
 class MainWindow(DragAndDrop):
     window: int = None
-    tabs: dict[int, Type[AddFileTab]] = {}
+    tabs: dict[int, Any] = {}
     settings_window: settings_window.Window
 
     def __init__(self):
@@ -34,5 +33,5 @@ class MainWindow(DragAndDrop):
 
         path_list = path_list
         # print(dpg.get_value(self.tab_bar), self.tabs)
-        tab_window = self.tabs[dpg.get_value(self.tab_bar)]
-        tab_window.load_files(path_list)
+        processing_window = self.tabs[dpg.get_value(self.tab_bar)]
+        processing_window.load_files(path_list)

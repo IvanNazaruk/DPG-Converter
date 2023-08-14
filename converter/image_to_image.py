@@ -11,7 +11,7 @@ from .conrtoller import get_safely_file_name, output_path
 from .status import Status
 
 if TYPE_CHECKING:
-    from gui.tabs.ImageToImage.image_table_cell import ImageToDraggableListCell
+    from gui.ImageToImage.image_table_cell import ImageToImageListCell
 
 
 @lru_cache
@@ -52,7 +52,7 @@ def get_name_all_output_formats():
 @dataclass
 class ImageToImageStore(ImageStore):
     image: Image
-    dpg_cell: 'ImageToDraggableListCell' = None
+    dpg_cell: 'ImageToImageListCell' = None
 
 
 class ImageToImage(Controller):

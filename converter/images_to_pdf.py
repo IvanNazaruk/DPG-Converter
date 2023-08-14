@@ -10,21 +10,21 @@ from converter.conrtoller import get_safely_file_name, ImageStore, output_path
 from gui.load_window import load_window_tqdm
 
 if TYPE_CHECKING:
-    from gui.tabs.ImagesToPDF.draggable_list_cell import ImagesToPDFListCell
+    from gui.ImagesToPDF.image_table_cell import ImagesToPDFListCell
 
 
 @dataclass
-class ImagesToPDFStore(ImageStore):
+class ImagesToPDFStorage(ImageStore):
     image: Image
     dpg_cell: 'ImagesToPDFListCell' = None
 
 
 class ImagesToPDF:
     @classmethod
-    def start(cls, image_stores: list[ImagesToPDFStore]) -> Path:
+    def start(cls, image_stores: list[ImagesToPDFStorage]) -> Path:
         session_name = datetime.now().strftime("%d.%m %H.%M")
         all_images = []
-        image_store: ImagesToPDFStore
+        image_store: ImagesToPDFStorage
         for image_store in load_window_tqdm(image_stores):
             img: Image = image_store.image.convert('RGB')
             img = img.resize(image_store.dpg_cell.image_size_input.get_value())  # noqa
@@ -39,7 +39,7 @@ class ImagesToPDF:
         all_images[0].save(path, save_all=True, append_images=all_images[1::])
 
         image: Image
-        for image in all_images:  # noqa
+        for image in all_images:
             del image
         del all_images
         return path

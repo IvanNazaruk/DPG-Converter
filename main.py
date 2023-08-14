@@ -1,38 +1,49 @@
-import darkdetect
-import dearpygui.dearpygui as dpg
-import DearPyGui_DragAndDrop as dpg_dnd
+import threading
 
-import DearPyGui_Animations as dpg_anim
-import DearPyGui_Theme as dpg_theme
-import fonts
-import settings
-from DearPyGui_Addons import title_bar
+import dearpygui.dearpygui as dpg
 
 dpg.create_context()
-dpg_dnd.initialize()
-dpg.bind_theme(dpg_theme.initialize())
-dpg.bind_font(fonts.load(show=False))
-settings.load_settings()
-settings.start_up()
+dpg.create_viewport(title="Demo WIP", width=900, height=600,
+                    x_pos=1920 // 2 - 900 // 2,
+                    y_pos=1080 // 2 - 600 // 2)
 
 
-def start():
+def main():
     import gui
     main_widow = gui.MainWindow()
     dpg.set_primary_window(main_widow.window, True)
+    gui.LoadWindow.create()
 
 
-dpg.set_frame_callback(2, start)
+import sys
+
+if sys.platform.startswith('win'):
+    import ctypes
+
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u'CompanyName.ProductName.SubProduct.VersionInformation')
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)
+
+dpg.configure_viewport(0, clear_color=(255, 255, 255))
 dpg.setup_dearpygui()
-dpg.create_viewport(title="Converter", width=fonts.font_size * 26, height=fonts.font_size * 21, vsync=True,
-                    clear_color=dpg_theme.get_current_theme_color_value(dpg.mvThemeCol_WindowBg))
 dpg.show_viewport()
+dpg.render_dearpygui_frame()
 
-is_dark = settings.DarkTitleBar.get()
-if settings.UseSystemColor.get():
-    is_dark = darkdetect.isDark()
-title_bar.set_dark_mode(is_dark)
+import DearPyGui_DragAndDrop as dpg_dnd
 
+import DPG_modules.Animations as dpg_anim
+import DPG_modules.Theme as dpg_theme
+from DPG_modules.Addons.title_bar import set_dark_mode
+from Resources import fonts, settings
+
+dpg_dnd.initialize()
+settings.load_settings()
+dpg.bind_font(fonts.load(show=False))
+dpg.bind_theme(dpg_theme.initialize())
+
+set_dark_mode(True)
+dpg.render_dearpygui_frame()
+
+threading.Thread(target=main, daemon=True).start()
 while dpg.is_dearpygui_running():
     dpg_anim.update()
     dpg.render_dearpygui_frame()

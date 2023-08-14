@@ -2,7 +2,7 @@ DearPyGui-DragAndDrop
 dearpygui
 numpy
 pillow
-# pillow-simd  # Does not support python > 3.10
+# pillow-simd
 annotated-types
 tqdm
 darkdetect

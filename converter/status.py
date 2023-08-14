@@ -1,6 +1,6 @@
 import dearpygui.dearpygui as dpg
 
-import DearPyGui_Theme as dpg_theme
+import DPG_modules.Theme as dpg_theme
 
 
 class StatusValue:
@@ -44,7 +44,7 @@ class WAITING(StatusValue):
 
     @classmethod
     def create_theme(cls) -> int:
-        return 0
+        return dpg.add_theme()
 
 
 class IN_QUEUE(StatusValue):

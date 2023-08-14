@@ -8,10 +8,10 @@ import dearpygui.dearpygui as dpg
 from DearPyGui_DragAndDrop import DROPEFFECT, set_drop_effect
 from tqdm.auto import tqdm as base_tqdm
 
-import DearPyGui_Theme as dpg_theme
-from DearPyGui_Addons import dpg_handler
-from DearPyGui_Animations import StyleAnimation, StyleColorAnimation
-from DearPyGui_Animations.animator.value import FloatValueAnimationABC, IntValueAnimationABC
+import DPG_modules.Theme as dpg_theme
+from DPG_modules.Addons import dpg_handler
+from DPG_modules.Animations import StyleAnimation, StyleColorAnimation
+from DPG_modules.Animations.animator.value import FloatValueAnimationABC, IntValueAnimationABC
 
 
 class ThreadWithReturnValue(Thread):
@@ -43,7 +43,7 @@ class ThreadWithReturnValue(Thread):
 class LoadWindowPositionAnimation(IntValueAnimationABC):
     def set_value(self, value: int):
         window_size = dpg.get_item_rect_size(LoadWindow.window)
-        center = [dpg.get_viewport_client_width() / 2, dpg.get_viewport_client_height() / 2]
+        center = dpg.get_viewport_client_width() / 2, dpg.get_viewport_client_height() / 2
 
         center = [int(center[0] - window_size[0] / 2), int(center[1] - window_size[1] / 2)]
         center[1] = int(center[1] * 0.75 + value)
@@ -124,17 +124,17 @@ class LoadWindow:
             # dpg.add_button(label="Hide", callback=cls.hide)
 
         # Animations
-        cls.color_animation = StyleColorAnimation(cls.bg_theme_color, (0, 0, 0, 0)) \
-            .add_point((0, 0, 0, cls.bg_alpha), cls.duration_animation)
+        cls.color_animation = StyleColorAnimation(cls.bg_theme_color, (0, 0, 0, 0))
+        cls.color_animation.add_point((0, 0, 0, cls.bg_alpha), cls.duration_animation)
 
-        cls.li_alpha_animation = StyleAnimation(cls.li_alpha_style, [0]) \
-            .add_point([1], cls.duration_animation)
+        cls.li_alpha_animation = StyleAnimation(cls.li_alpha_style, [0])
+        cls.li_alpha_animation.add_point([1], cls.duration_animation)
 
-        cls.pb_alpha_animation = StyleAnimation(cls.pb_alpha_style, [0]) \
-            .add_point([1.2], cls.duration_animation)
+        cls.pb_alpha_animation = StyleAnimation(cls.pb_alpha_style, [0])
+        cls.pb_alpha_animation.add_point([1.2], cls.duration_animation)
 
-        cls.pos_animation = LoadWindowPositionAnimation(cls.start_y_pos) \
-            .add_point(0, 1, (.19, .16, .01, .94))
+        cls.pos_animation = LoadWindowPositionAnimation(cls.start_y_pos)
+        cls.pos_animation.add_point(0, 1, (.19, .16, .01, .94))
 
         cls.progress_bar_animation = ProgressBarAnimation(0)
 
@@ -156,6 +156,7 @@ class LoadWindow:
     @classmethod
     def run_function(cls, function: Callable[[None], Any]) -> Any | None:
         set_drop_effect(DROPEFFECT.NONE)
+        cls.create()
         cls.__pre_show__()
         start_time = time.time()
         thread = ThreadWithReturnValue(target=function, daemon=True)
@@ -177,7 +178,6 @@ class LoadWindow:
 
     @classmethod
     def __pre_show__(cls):
-        cls.create()
         dpg.set_value(cls.li_alpha_style, [0])
         dpg.set_value(cls.bg_theme_color, [0, 0, 0, 0])
         dpg.set_value(cls.progress_bar, 0)
@@ -202,8 +202,9 @@ class LoadWindow:
         animations_list = (cls.color_animation, cls.li_alpha_animation, cls.pb_alpha_animation,
                            cls.pos_animation)
         for animation in animations_list:
-            animation.set_reverse(True) \
-                .continue_or_start()
+            animation.set_reverse(True)
+            if animation.PAUSED:
+                animation.start()
 
         while True:
             if cls.color_animation.PAUSED:
@@ -214,18 +215,18 @@ class LoadWindow:
         dpg.configure_item(cls.window, show=False)
 
     @classmethod
-    def update_progress_bar(cls, progress: float, text: str = ""):  # TODO: text object
-        cls.progress_bar_animation.update() \
-            .delete()
-        cls.progress_bar_animation = ProgressBarAnimation(dpg.get_value(cls.progress_bar)) \
-            .add_point(progress, 0.25, (0, 0, .38, .92)) \
-            .start()
+    def update_progress_bar(cls, progress: float, text: str = ""):
+        cls.progress_bar_animation.update()
+        cls.progress_bar_animation.delete()
+        cls.progress_bar_animation = ProgressBarAnimation(dpg.get_value(cls.progress_bar))
+        cls.progress_bar_animation.add_point(progress, 0.25, (0, 0, .38, .92))
+        cls.progress_bar_animation.start()
         # dpg.configure_item(cls.progress_bar, default_value=progress, label=text)
 
 
 class load_window_tqdm(base_tqdm):
     def __init__(self, *args, mininterval=0.3, smoothing=1, **kwargs):
-        super().__init__(*args, mininterval=mininterval, smoothing=smoothing, **kwargs)
+        super().__init__(*args, mininterval=mininterval, smoothing=smoothing, disable=True, **kwargs)
 
     def update(self, n=1, always_callback=False):
         if super().update(n) or always_callback:

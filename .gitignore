@@ -1,8 +1,12 @@
-OUTPUT/
-settings/settings.ini
-
-*.pclprof
 .idea/
+venv/
+OUTPUT/
+test_images/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

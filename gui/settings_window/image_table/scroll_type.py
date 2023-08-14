@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 import dearpygui.dearpygui as dpg
 
 import fonts
-from DearPyGui_Addons import CheckBoxSlider, dpg_callback, ImageSizeInput
-from DearPyGui_Addons import dpg_handler
-from DearPyGui_Animations.dpg.scroll import ScrollYAnimation
-from settings import FullWindowScrollBar
-from ._placeholders import SelectableSettingDraggableList, SettingDraggableList, SettingDraggableListCell
-from ...draggable_list import cell_size
+from DPG_modules.Addons import CheckBoxSlider, dpg_callback, ImageSizeInput
+from DPG_modules.Addons import dpg_handler
+from DPG_modules.Animations.dpg.scroll import ScrollYAnimation
+from Resources.settings import FullWindowScrollBar
+from ._placeholders import SelectableImageListSetting, SettingImageList, SettingImageListCell
+from ...image_table import cell_size
 
 if TYPE_CHECKING:
     from .. import Window
@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 __all__ = ["AddScrollTypeSetting"]
 
 
-class MiniWindow(SettingDraggableList):
+class MiniWindow(SettingImageList):
     window_padding = (0, 0)
     space_between_cells = 0
 
 
-class MiniDraggableList(SettingDraggableList):
+class MiniImageList(SettingImageList):
     window_padding = (5, 5)
     space_between_cells = 8
 
@@ -69,10 +69,10 @@ def create_interface():
         dpg.add_spacer(height=5)
         dpg.add_separator()
         dpg.add_spacer(height=1)
-        image_list = MiniDraggableList()
-        dpg.add_spacer(height=MiniDraggableList.space_between_cells // 2, parent=image_list.window)
+        image_list = MiniImageList()
+        dpg.add_spacer(height=MiniImageList.space_between_cells // 2, parent=image_list.window)
         for _ in range(5):
-            image_list.append(SettingDraggableListCell(image_list))
+            image_list.append(SettingImageListCell(image_list))
         return image_list
 
 
@@ -89,7 +89,7 @@ def get_invisible_child_window_theme():
     return theme
 
 
-class AddScrollTypeSetting(SelectableSettingDraggableList):
+class AddScrollTypeSetting(SelectableImageListSetting):
     scroll_animations: list[ScrollYAnimation]
     windows: list[MiniWindow]
 
@@ -140,22 +140,27 @@ class AddScrollTypeSetting(SelectableSettingDraggableList):
             dpg.split_frame()
 
         self._create_animations()
+
         for animation in self.scroll_animations:
-            animation.continue_or_start()
+            if not animation.PAUSED:
+                return
+
+        for animation in self.scroll_animations:
+            animation.start()
 
     def _create_animations(self):
         if len(self.scroll_animations) != 0:
             return
-        scroll_y_animation = ScrollYAnimation(self.first_window_image_list.window, 0) \
-            .add_pause_point(1.5) \
-            .add_point(int(dpg.get_y_scroll_max(self.first_window_image_list.window)), 2.5, (.56, .28, .56, .84)) \
-            .add_pause_point(0.6) \
-            .add_point(0, 2.5, (.56, .28, .56, .84))
+        scroll_y_animation = ScrollYAnimation(self.first_window_image_list.window, 0)
+        scroll_y_animation.add_pause_point(1.5)
+        scroll_y_animation.add_point(int(dpg.get_y_scroll_max(self.first_window_image_list.window)), 2.5, (.56, .28, .56, .84))
+        scroll_y_animation.add_pause_point(0.6)
+        scroll_y_animation.add_point(0, 2.5, (.56, .28, .56, .84))
         self.scroll_animations.append(scroll_y_animation)
 
-        scroll_y_animation = ScrollYAnimation(self.mini_window.window, 0) \
-            .add_pause_point(1.5) \
-            .add_point(int(dpg.get_y_scroll_max(self.windows[-1].window)), 2.5, (.56, .28, .56, .84)) \
-            .add_pause_point(0.6) \
-            .add_point(0, 2.5, (.56, .28, .56, .84))
+        scroll_y_animation = ScrollYAnimation(self.mini_window.window, 0)
+        scroll_y_animation.add_pause_point(1.5)
+        scroll_y_animation.add_point(int(dpg.get_y_scroll_max(self.windows[-1].window)), 2.5, (.56, .28, .56, .84))
+        scroll_y_animation.add_pause_point(0.6)
+        scroll_y_animation.add_point(0, 2.5, (.56, .28, .56, .84))
         self.scroll_animations.append(scroll_y_animation)

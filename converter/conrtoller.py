@@ -10,7 +10,7 @@ from typing import TypeVar
 
 from PIL import Image
 
-from settings import application_path
+from Resources.settings import application_path
 
 Image.init()
 

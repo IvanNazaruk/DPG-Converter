@@ -1,7 +1,7 @@
 import dearpygui.dearpygui as dpg
 
 import fonts
-from .image_table import AddNewFileAddToEndSetting, AddScrollTypeSetting
+from .image_table import AddScrollTypeSetting, AddSelectableImagePlace
 from .other import OtherSetting
 from .theme import ThemeSetting
 
@@ -16,7 +16,7 @@ class Window:
                 with dpg.tab(label='Theme'):
                     ThemeSetting(self)
                 with dpg.tab(label='Table'):
-                    AddNewFileAddToEndSetting(self)
+                    AddSelectableImagePlace(self)
                     AddScrollTypeSetting(self)
                 with dpg.tab(label='Other'):
                     OtherSetting(self)
